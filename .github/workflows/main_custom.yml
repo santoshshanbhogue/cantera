@@ -14,8 +14,8 @@ on:
     branches:
       - main
   
-  jobs:
-    macos-multiple-pythons:
+jobs:
+  macos-multiple-pythons:
     name: macOS with Python 3.7
     runs-on: macos-latest
     strategy:
