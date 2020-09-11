@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    # Build on tags that look like releases
+    tags:
+      - v*
+    # Build when main or testing is pushed to
+    branches:
+      - main
+      - testing
+  pull_request:
+    # Build when a pull request targets main
+    branches:
+      - main
+  
+  jobs:
+    macos-multiple-pythons:
+    name: macOS with Python 3.7
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: 3.7
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+        architecture: x64
+    - name: Install Brew dependencies
+      run: brew install boost libomp
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip 'setuptools>=47.0.0,<48' wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
+    - name: Build Cantera
+      run: python3 `which scons` build -j2
+    - name: Test Cantera
+      run: python3 `which scons` test
